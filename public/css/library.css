@@ -1,0 +1,35 @@
+.flex {display: flex;}
+.flexWrap {flex-wrap: wrap;}
+.spaceBetween {justify-content: space-between;}
+.justifyCenter {justify-content: center;}
+.alignCenter {align-items: center;}
+
+.posAbsolute {position: absolute;}
+.posRelative {position: relative;}
+
+.overflowHidden {overflow: hidden;}
+
+.m10  {margin: 10px;}
+
+.mxAuto {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.mr5  {margin-right:  5px;}
+.mr10 {margin-right: 10px;}
+
+.mb5  {margin-bottom:  5px;}
+.mb10 {margin-bottom: 10px;}
+
+.p5 {padding: 5px;}
+
+.bdrBlack {border: 1px solid black;}
+
+.bgGreen {background-color: #406618;}
+.bgRed {background-color: #aa0807;}
+
+.txtGreen {color: #83ac4d;}
+.txtRed {color: #f44c4e;}
+
+.csrPointer {cursor: pointer;}
