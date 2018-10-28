@@ -12,3 +12,10 @@ body, input, select, button {
 a {
   color: blue;
 }
+
+img {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
