@@ -176,13 +176,15 @@
     },
     data() {
       return {
+        containerX: null,
         currentIndex: 0,
+        currentMediaList: [],
         genres: [],
+        mediaNo: [],
+        mediaTotal: null,
         mediaUndecided: [],
         mediaYes: [],
-        mediaNo: [],
-        currentMediaList: [],
-        mediaTotal: null,
+        mousedownX: null,
         offset: null,
         pagesTotal: null,
         params: {
@@ -226,6 +228,10 @@
           'NC-17',
           'NR'
         ],
+        showFilters: false,
+        showInstructions: false,
+        slidesX: null,
+        slideWidth: null,
         stars: [
           {
             label: '5 Stars',
@@ -257,13 +263,7 @@
             max: 1.9,
             min: 0
           }
-        ],
-        containerX: null,
-        mousedownX: null,
-        slidesX: null,
-        slideWidth: null,
-        showFilters: false,
-        showInstructions: false
+        ]
       };
     },
     computed: {
@@ -279,59 +279,6 @@
       }
     },
     methods: {
-      resetParams() {
-        this.params = {
-          certification_country: 'US',
-          certification: '',
-          certification_lte: null,
-          include_adult: false,
-          include_video: false,
-          language: 'en-US',
-          page: 0,
-          'primary_release_date.gte': null,
-          'primary_release_date.lte': null,
-          primary_release_year: '',
-          region: 'US',
-          'release_date.gte': null,
-          'release_date.lte': null,
-          sort_by: null,
-          'vote_average.gte': null,
-          'vote_average.lte': null,
-          'vote_count.gte': null,
-          'vote_count.lte': null,
-          with_cast: null,
-          with_companies: null,
-          with_crew: null,
-          with_genres: '',
-          with_keywords: null,
-          without_genres: null,
-          with_people: null,
-          with_release_type: null,
-          'with_runtime.gte': null,
-          'with_runtime.lte': null,
-          with_original_language: null,
-          without_keywords: null,
-          year: null
-        };
-      },
-      getGenres() {
-        api.getGenres().then((response) => {
-          this.genres = response.data.genres;
-        });
-      },
-      getMovies() {
-        this.params.page++;
-        api.getMovies(this.params).then((response) => {
-          this.mediaTotal = (this.mediaTotal) ? this.mediaTotal : response.data.total_results;
-          this.pagesTotal = response.data.total_pages;
-
-          response.data.results.forEach(movie => {
-            this.mediaUndecided.push(movie);
-          });
-
-          this.currentMediaList = this.mediaUndecided;
-        });
-      },
       checkCurrentList() {
         if (this.currentMediaList.length === 0) {
           if (this.currentMediaList === this.mediaYes) {
@@ -371,44 +318,23 @@
 
         setTimeout(this.showNextPoster, 500);
       },
-      preserveMedia() {
-        if (this.currentMediaList === this.mediaYes) {
-          this.currentIndex++;
-        } else if (this.currentMediaList === this.mediaNo) {
-          this.mediaYes.unshift(this.currentMediaList[this.currentIndex]);
-          this.currentMediaList.splice(this.currentIndex, 1);
-        } else {
-          this.mediaYes.push(this.currentMediaList[this.currentIndex]);
-          this.currentMediaList.splice(this.currentIndex, 1);
-          this.mediaTotal--;
-        }
-
-        this.checkCurrentList();
-
-        setTimeout(this.showNextPoster, 500);
+      getGenres() {
+        api.getGenres().then((response) => {
+          this.genres = response.data.genres;
+        });
       },
-      updateFilters() {
-        this.showFilters = false;
-        this.currentIndex = 0;
-        this.params.page = 0;
-        this.mediaUndecided = [];
-        this.mediaTotal = null;
+      getMovies() {
+        this.params.page++;
+        api.getMovies(this.params).then((response) => {
+          this.mediaTotal = (this.mediaTotal) ? this.mediaTotal : response.data.total_results;
+          this.pagesTotal = response.data.total_pages;
 
-        this.getMovies();
-      },
-      updateStarsExact(event) {
-        let max = event.target.options[event.target.selectedIndex].dataset.max;
-        let min = event.target.options[event.target.selectedIndex].dataset.min;
+          response.data.results.forEach(movie => {
+            this.mediaUndecided.push(movie);
+          });
 
-        this.params['vote_average.gte'] = min;
-        this.params['vote_average.lte'] = max;
-        this.updateFilters();
-      },
-      updateStarsMinimum(event) {
-        let min = event.target.value;
-
-        this.params['vote_average.gte'] = min;
-        this.updateFilters();
+          this.currentMediaList = this.mediaUndecided;
+        });
       },
       mouseDown(event) {
         if (this.mediaUndecided.length > 0 || this.mediaYes.length > 0) {
@@ -445,29 +371,21 @@
           this.offset = null;
         }
       },
-      touchStart(event) {
-        if (event.touches.length > 1) {
-          this.touchCancel();
+      preserveMedia() {
+        if (this.currentMediaList === this.mediaYes) {
+          this.currentIndex++;
+        } else if (this.currentMediaList === this.mediaNo) {
+          this.mediaYes.unshift(this.currentMediaList[this.currentIndex]);
+          this.currentMediaList.splice(this.currentIndex, 1);
         } else {
-          this.mouseDown(event.touches[0]);
+          this.mediaYes.push(this.currentMediaList[this.currentIndex]);
+          this.currentMediaList.splice(this.currentIndex, 1);
+          this.mediaTotal--;
         }
-      },
-      touchMove(event) {
-        if (event.touches.length > 1) {
-          this.touchCancel();
-        } else {
-          this.mouseMove(event.changedTouches[0]);
-        }
-      },
-      touchEnd(event) {
-        this.mouseUp(event.changedTouches[0]);
-      },
-      touchCancel() {
-        this.slidesX = 0 - this.slideWidth;
-        this.offset = null;
-      },
-      showNextPoster() {
-        this.slidesX = 0 - this.slideWidth;
+
+        this.checkCurrentList();
+
+        setTimeout(this.showNextPoster, 500);
       },
       resetAll() {
         let confirmation = confirm('Are you sure you want to permanently clear your selections and filters?');
@@ -482,14 +400,40 @@
           this.getMovies();
         }
       },
-      reviewMediaYes() {
-        if (this.mediaYes.length > 0) {
-          this.currentMediaList = this.mediaYes;
-          this.currentIndex = 0;
-        } else {
-          alert('There are no approved movies to dismiss. Swipe right to add movies to consider.');
-          this.reviewMediaUndecided();
-        }
+      resetParams() {
+        this.params = {
+          certification_country: 'US',
+          certification: '',
+          certification_lte: null,
+          include_adult: false,
+          include_video: false,
+          language: 'en-US',
+          page: 0,
+          'primary_release_date.gte': null,
+          'primary_release_date.lte': null,
+          primary_release_year: '',
+          region: 'US',
+          'release_date.gte': null,
+          'release_date.lte': null,
+          sort_by: null,
+          'vote_average.gte': null,
+          'vote_average.lte': null,
+          'vote_count.gte': null,
+          'vote_count.lte': null,
+          with_cast: null,
+          with_companies: null,
+          with_crew: null,
+          with_genres: '',
+          with_keywords: null,
+          without_genres: null,
+          with_people: null,
+          with_release_type: null,
+          'with_runtime.gte': null,
+          'with_runtime.lte': null,
+          with_original_language: null,
+          without_keywords: null,
+          year: null
+        };
       },
       reviewMediaNo() {
         if (this.mediaNo.length > 0) {
@@ -508,6 +452,62 @@
           alert("All movies matching your filters have been swiped. Now it's time to make some tough choices. Swipe left to dismiss.");
           this.reviewMediaYes();
         }
+      },
+      reviewMediaYes() {
+        if (this.mediaYes.length > 0) {
+          this.currentMediaList = this.mediaYes;
+          this.currentIndex = 0;
+        } else {
+          alert('There are no approved movies to dismiss. Swipe right to add movies to consider.');
+          this.reviewMediaUndecided();
+        }
+      },
+      showNextPoster() {
+        this.slidesX = 0 - this.slideWidth;
+      },
+      touchCancel() {
+        this.slidesX = 0 - this.slideWidth;
+        this.offset = null;
+      },
+      touchEnd(event) {
+        this.mouseUp(event.changedTouches[0]);
+      },
+      touchMove(event) {
+        if (event.touches.length > 1) {
+          this.touchCancel();
+        } else {
+          this.mouseMove(event.changedTouches[0]);
+        }
+      },
+      touchStart(event) {
+        if (event.touches.length > 1) {
+          this.touchCancel();
+        } else {
+          this.mouseDown(event.touches[0]);
+        }
+      },
+      updateFilters() {
+        this.showFilters = false;
+        this.currentIndex = 0;
+        this.params.page = 0;
+        this.mediaUndecided = [];
+        this.mediaTotal = null;
+
+        this.getMovies();
+      },
+      updateStarsExact(event) {
+        let max = event.target.options[event.target.selectedIndex].dataset.max;
+        let min = event.target.options[event.target.selectedIndex].dataset.min;
+
+        this.params['vote_average.gte'] = min;
+        this.params['vote_average.lte'] = max;
+        this.updateFilters();
+      },
+      updateStarsMinimum(event) {
+        let min = event.target.value;
+
+        this.params['vote_average.gte'] = min;
+        this.updateFilters();
       }
     },
     mounted() {
