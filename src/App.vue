@@ -148,24 +148,24 @@
           </select>
         </div>
       </Menu>
-      <div id="debug" class="flex">
-        <pre>
-          <p>current ({{ currentMediaList.length }}):</p>
-          {{ currentMediaList }}
-        </pre>
-        <pre>
-          <p>undecided ({{ mediaUndecided.length }}):</p>
-          {{ mediaUndecided }}
-        </pre>
-        <pre>
-          <p>yes ({{ mediaYes.length }}):</p>
-          {{ mediaYes }}
-        </pre>
-        <pre>
-          <p>no ({{ mediaNo.length }}):</p>
-          {{ mediaNo }}
-        </pre>
-      </div>
+    </div>
+    <div id="debug" class="flex">
+      <pre>
+        <p>current ({{ currentMediaList.length }}):</p>
+        {{ currentMediaList }}
+      </pre>
+      <pre>
+        <p>undecided ({{ mediaUndecided.length }}):</p>
+        {{ mediaUndecided }}
+      </pre>
+      <pre>
+        <p>yes ({{ mediaYes.length }}):</p>
+        {{ mediaYes }}
+      </pre>
+      <pre>
+        <p>no ({{ mediaNo.length }}):</p>
+        {{ mediaNo }}
+      </pre>
     </div>
   </div>
 </template>
@@ -285,7 +285,7 @@
     },
     methods: {
       checkCurrentList() {
-        if (this.currentMediaList.length === 0) {
+        if (this.currentIndex >= this.currentMediaList.length) {
           if (this.currentMediaList === this.mediaYes) {
             if (this.mediaUndecided.length > 0) {
               this.reviewMediaUndecided();
