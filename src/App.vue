@@ -1,166 +1,171 @@
 <template>
-  <div id="app">
-    <header id="header" class="m10">
-      <h1 class="mb5">Movie Swiper</h1>
-      <p class="mb10">There are too many movies to watch. Narrow down which movie to watch.</p>
-      <p class="mb10">{{ mediaTotal }} movies to swipe.</p>
-      <p class="mb10">{{ mediaYes.length }} swiped right.</p>
-      <p class="mb10">{{ mediaNo.length }} swiped left.</p>
-      <p
-      v-if="mediaUndecided.length === 0 && mediaYes.length === 1"
-      class="mb10">Enjoy your movie: {{ mediaYes[0].original_title }}</p>
-      <div id="buttons" class="flex">
-        <i
-        v-on:click.prevent="showInstructions = true;"
-        class="mr10 fas fa-chalkboard-teacher fs20 csrPointer"></i>
-        <i
-        v-on:click.prevent="showFilters = !showFilters"
-        class="mr10 fas fa-filter fs20 csrPointer"></i>
-        <i
-        v-on:click.prevent="reviewMediaYes"
-        class="mr10 fas fa-thumbs-up fs20 csrPointer"></i>
-        <i
-        v-on:click.prevent="reviewMediaUndecided"
-        class="mr10 fas fa-question-circle fs20 csrPointer"></i>
-        <i
-        v-on:click.prevent="reviewMediaNo"
-        class="mr10 fas fa-thumbs-down fs20 csrPointer"></i>
-        <i
-        v-on:click.prevent="resetAll"
-        class="fas fa-trash fs20 csrPointer"></i>
-      </div>
-    </header>
-    <div
-    id="swipeContainer"
-    class="mxAuto mb10 posRelative overflowHidden">
+  <div id="app" class="m10">
+    <div class="container">
+      <header id="header" class="mb10 flex100">
+        <h1 class="mb5">Movie Swiper</h1>
+        <p class="mb10">There are too many movies to watch. Narrow down which movie to watch.</p>
+        <p
+        v-if="mediaUndecided.length === 0 && mediaYes.length === 1"
+        class="mb10">Enjoy your movie: {{ mediaYes[0].original_title }}</p>
+        <div id="buttons" class="flex spaceBetween">
+          <i
+          v-on:click.prevent="showInstructions = true;"
+          class="fas fa-chalkboard-teacher fs20 csrPointer"></i>
+          <i
+          v-on:click.prevent="showFilters = !showFilters"
+          class="fas fa-filter fs20 csrPointer"></i>
+          <i
+          v-on:click.prevent="reviewMediaYes"
+          class="fas fa-thumbs-up fs20 csrPointer"></i>
+          <i
+          v-on:click.prevent="reviewMediaUndecided"
+          class="fas fa-question-circle fs20 csrPointer"></i>
+          <i
+          v-on:click.prevent="reviewMediaNo"
+          class="fas fa-thumbs-down fs20 csrPointer"></i>
+          <i
+          v-on:click.prevent="resetAll"
+          class="fas fa-trash fs20 csrPointer"></i>
+        </div>
+      </header>
       <div
-      id="slides"
-      v-if="currentMediaList.length > 0 && currentMediaList[currentIndex]"
-      v-bind:style="{ left: slidesX + 'px' }"
-      class="flex posAbsolute">
+      id="swipeContainer"
+      class="mxAuto mb10 posRelative overflowHidden posterSize">
         <div
-        id="preserve"
-        class="flex justifyCenter alignCenter bgGreen posterSize">
-          <i class="txtGreen fas fa-thumbs-up fs165"></i>
-        </div>
-        <div
-        id="posterContainer"
-        v-on:mousedown.prevent="mouseDown"
-        v-on:touchstart.prevent="touchStart"
-        class="posRelative csrPointer">
-          <img
-          id="poster"
-          v-bind:src="`https://image.tmdb.org/t/p/w500${currentMediaList[currentIndex].poster_path}`"/>
+        id="slides"
+        v-if="currentMediaList.length > 0 && currentMediaList[currentIndex]"
+        v-bind:style="{ left: slidesX + 'px' }"
+        class="flex posAbsolute">
           <div
-          v-if="currentMediaList === mediaYes"
-          class="flex justifyCenter alignCenter posterSize">
-            <div class="posAbsolute top0 posterSize bgBlack opac50"></div>
-            <div class="posAbsolute top0 flex justifyCenter alignCenter posterSize">
-              <i class="fas fa-thumbs-up fs165 txtGreen"></i>
+          id="preserve"
+          class="flex justifyCenter alignCenter bgGreen posterSize">
+            <i class="txtGreen fas fa-thumbs-up fs165"></i>
+          </div>
+          <div
+          id="posterContainer"
+          v-on:mousedown.prevent="mouseDown"
+          v-on:touchstart.prevent="touchStart"
+          class="posRelative posterSize csrPointer">
+            <img
+            id="poster"
+            v-bind:src="`https://image.tmdb.org/t/p/w500${currentMediaList[currentIndex].poster_path}`"
+            class="posterSize"/>
+            <div
+            v-if="currentMediaList === mediaYes"
+            class="flex justifyCenter alignCenter posterSize">
+              <div class="posAbsolute top0 posterSize bgBlack opac50"></div>
+              <div class="posAbsolute top0 flex justifyCenter alignCenter posterSize">
+                <i class="fas fa-thumbs-up fs165 txtGreen"></i>
+              </div>
+            </div>
+            <div
+            v-if="currentMediaList === mediaNo"
+            class="flex justifyCenter alignCenter posterSize">
+              <div class="posAbsolute top0 posterSize bgBlack opac50"></div>
+              <div class="posAbsolute top0 flex justifyCenter alignCenter posterSize">
+                <i class="fas fa-thumbs-down fs165 txtRed"></i>
+              </div>
             </div>
           </div>
           <div
-          v-if="currentMediaList === mediaNo"
-          class="flex justifyCenter alignCenter posterSize">
-            <div class="posAbsolute top0 posterSize bgBlack opac50"></div>
-            <div class="posAbsolute top0 flex justifyCenter alignCenter posterSize">
-              <i class="fas fa-thumbs-down fs165 txtRed"></i>
-            </div>
+          id="dismiss"
+          class="flex justifyCenter alignCenter bgRed posterSize">
+            <i class="txtRed fas fa-thumbs-down fs165"></i>
           </div>
         </div>
-        <div
-        id="dismiss"
-        class="flex justifyCenter alignCenter bgRed posterSize">
-          <i class="txtRed fas fa-thumbs-down fs165"></i>
+        <img
+        v-if="mediaUndecided.length === 0 && mediaYes.length === 1"
+        v-on:mousedown.prevent.prevent=""
+        v-bind:src="`https://image.tmdb.org/t/p/w500${mediaYes[0].poster_path}`"
+        class="posterSize"/>
+      </div>
+      <div>
+        <p class="mb10">{{ mediaTotal }} movies to swipe.</p>
+        <p class="mb10">{{ mediaYes.length }} swiped right.</p>
+        <p>{{ mediaNo.length }} swiped left.</p>
+      </div>
+      <Menu
+      id="instructions"
+      v-bind:open="showInstructions"
+      v-on:close="showInstructions = false;"
+      class="bgWhite">
+        <p>Swipe right to keep a movie in consideration.</p>
+        <p>Swipe left to dismiss.</p>
+        <p>Keep swiping until you've found the movie to watch.</p>
+        <p>Use filters to focus your search.</p>
+      </Menu>
+      <Menu
+      id="filters"
+      v-bind:open="showFilters"
+      v-on:close="updateFilters"
+      class="bgWhite">
+        <div class="flex flexWrap mt10">
+          <select
+          v-model="params.primary_release_year"
+          class="mr10">
+            <option value="">Any Year</option>
+            <option
+            v-for="(year, index) in years"
+            v-bind:key="index"
+            v-bind:value="year">{{ year }}</option>
+          </select>
+          <select
+          v-model="params.with_genres"
+          class="mr10">
+            <option value="">Any Genre</option>
+            <option
+            v-for="(genre, index) in genres"
+            v-bind:key="index"
+            v-bind:value="genre.id">{{ genre.name }}</option>
+          </select>
+          <select
+          v-model="params.certification"
+          class="mr10">
+            <option value="">Any Rating</option>
+            <option
+            v-for="(rating, index) in ratings"
+            v-bind:key="index"
+            v-bind:value="rating">{{ rating }}</option>
+          </select>
+          <select
+          v-on:change.prevent="updateStarsMinimum"
+          class="mr10">
+            <option value="">Any Minimum Stars</option>
+            <option
+            v-for="(review, index) in stars"
+            v-bind:key="index"
+            v-bind:value="review.min">{{ review.label }}</option>
+          </select>
+          <select
+          v-on:change.prevent="updateStarsExact"
+          class="mr10">
+            <option value="">Any Exact Stars</option>
+            <option
+            v-for="(review, index) in stars"
+            v-bind:key="index"
+            v-bind:data-max="review.max"
+            v-bind:data-min="review.min">{{ review.label }}</option>
+          </select>
         </div>
+      </Menu>
+      <div id="debug" class="flex">
+        <pre>
+          <p>current ({{ currentMediaList.length }}):</p>
+          {{ currentMediaList }}
+        </pre>
+        <pre>
+          <p>undecided ({{ mediaUndecided.length }}):</p>
+          {{ mediaUndecided }}
+        </pre>
+        <pre>
+          <p>yes ({{ mediaYes.length }}):</p>
+          {{ mediaYes }}
+        </pre>
+        <pre>
+          <p>no ({{ mediaNo.length }}):</p>
+          {{ mediaNo }}
+        </pre>
       </div>
-      <img
-      v-if="mediaUndecided.length === 0 && mediaYes.length === 1"
-      v-on:mousedown.prevent.prevent=""
-      v-bind:src="`https://image.tmdb.org/t/p/w500${mediaYes[0].poster_path}`"
-      class="posterSize"/>
-    </div>
-    <Menu
-    id="instructions"
-    v-bind:open="showInstructions"
-    v-on:close="showInstructions = false;"
-    class="bgWhite">
-      <p>Swipe right to keep a movie in consideration.</p>
-      <p>Swipe left to dismiss.</p>
-      <p>Keep swiping until you've found the movie to watch.</p>
-      <p>Use filters to focus your search.</p>
-    </Menu>
-    <Menu
-    id="filters"
-    v-bind:open="showFilters"
-    v-on:close="updateFilters"
-    class="bgWhite">
-      <div class="flex flexWrap mt10">
-        <select
-        v-model="params.primary_release_year"
-        class="mr10">
-          <option value="">Any Year</option>
-          <option
-          v-for="(year, index) in years"
-          v-bind:key="index"
-          v-bind:value="year">{{ year }}</option>
-        </select>
-        <select
-        v-model="params.with_genres"
-        class="mr10">
-          <option value="">Any Genre</option>
-          <option
-          v-for="(genre, index) in genres"
-          v-bind:key="index"
-          v-bind:value="genre.id">{{ genre.name }}</option>
-        </select>
-        <select
-        v-model="params.certification"
-        class="mr10">
-          <option value="">Any Rating</option>
-          <option
-          v-for="(rating, index) in ratings"
-          v-bind:key="index"
-          v-bind:value="rating">{{ rating }}</option>
-        </select>
-        <select
-        v-on:change.prevent="updateStarsMinimum"
-        class="mr10">
-          <option value="">Any Minimum Stars</option>
-          <option
-          v-for="(review, index) in stars"
-          v-bind:key="index"
-          v-bind:value="review.min">{{ review.label }}</option>
-        </select>
-        <select
-        v-on:change.prevent="updateStarsExact"
-        class="mr10">
-          <option value="">Any Exact Stars</option>
-          <option
-          v-for="(review, index) in stars"
-          v-bind:key="index"
-          v-bind:data-max="review.max"
-          v-bind:data-min="review.min">{{ review.label }}</option>
-        </select>
-      </div>
-    </Menu>
-    <div id="debug" class="flex">
-      <pre>
-        <p>current ({{ currentMediaList.length }}):</p>
-        {{ currentMediaList }}
-      </pre>
-      <pre>
-        <p>undecided ({{ mediaUndecided.length }}):</p>
-        {{ mediaUndecided }}
-      </pre>
-      <pre>
-        <p>yes ({{ mediaYes.length }}):</p>
-        {{ mediaYes }}
-      </pre>
-      <pre>
-        <p>no ({{ mediaNo.length }}):</p>
-        {{ mediaNo }}
-      </pre>
     </div>
   </div>
 </template>
@@ -508,12 +513,14 @@
 
         this.params['vote_average.gte'] = min;
         this.updateFilters();
+      },
+      checkWindowSize() {
+        this.slideWidth = (window.innerWidth > 480) ? 480 : window.innerWidth - 20;
+        this.slidesX = 0 - this.slideWidth;
       }
     },
     mounted() {
       this.containerX = document.getElementById('swipeContainer').getBoundingClientRect().left;
-      this.slideWidth = 200;//document.getElementById('posterContainer').getBoundingClientRect().width;
-      this.slidesX = 0 - this.slideWidth;
 
       this.resetParams();
       this.getGenres();
@@ -524,17 +531,35 @@
       document.getElementById('swipeContainer').addEventListener('touchmove', this.touchMove);
       document.getElementById('swipeContainer').addEventListener('touchend', this.touchEnd);
       document.getElementById('swipeContainer').addEventListener('touchcancel', this.touchCancel);
+      window.addEventListener('resize', this.checkWindowSize);
+
+      this.checkWindowSize();
     }
   }
 </script>
 
 <style scoped>
-  #swipeContainer, #posterContainer, #poster, .posterSize {
-    width: 200px;
-    height: 300px;
-  }
   pre {
     width: 25%;
     overflow: hidden;
+  }
+
+  .posterSize {
+    width: 480px;
+    height: 720px;
+  }
+
+  @media screen and (max-width: 499px) {
+    .posterSize {
+      width: calc(100vw - 20px);
+      height: calc((100vw - 20px) * 3 / 2);
+    }
+  }
+
+  @media screen and (min-width: 500px) {
+    .container {
+      margin: 0 auto;
+      width: 480px;
+    }
   }
 </style>
