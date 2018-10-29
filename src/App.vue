@@ -6,7 +6,7 @@
       <p class="mb10">{{ mediaTotal }} movies to swipe.</p>
       <p class="mb10">{{ mediaYes.length }} swiped right.</p>
       <p class="mb10">{{ mediaNo.length }} swiped left.</p>
-      <p 
+      <p
       v-if="mediaUndecided.length === 0 && mediaYes.length === 1"
       class="mb10">Enjoy your movie: {{ mediaYes[0].original_title }}</p>
       <div id="buttons" class="flex">
@@ -25,7 +25,7 @@
         <i
         v-on:click.prevent="reviewMediaNo"
         class="mr10 fas fa-thumbs-down fs20 csrPointer"></i>
-        <i 
+        <i
         v-on:click.prevent="resetAll"
         class="fas fa-trash fs20 csrPointer"></i>
       </div>
@@ -80,9 +80,9 @@
       v-bind:src="`https://image.tmdb.org/t/p/w500${mediaYes[0].poster_path}`"
       class="posterSize"/>
     </div>
-    <Menu 
-    id="instructions" 
-    v-bind:open="showInstructions" 
+    <Menu
+    id="instructions"
+    v-bind:open="showInstructions"
     v-on:close="showInstructions = false;"
     class="bgWhite">
       <p>Swipe right to keep a movie in consideration.</p>
@@ -90,9 +90,9 @@
       <p>Keep swiping until you've found the movie to watch.</p>
       <p>Use filters to focus your search.</p>
     </Menu>
-    <Menu 
-    id="filters" 
-    v-bind:open="showFilters" 
+    <Menu
+    id="filters"
+    v-bind:open="showFilters"
     v-on:close="updateFilters"
     class="bgWhite">
       <div class="flex flexWrap mt10">
@@ -183,6 +183,7 @@
         mediaNo: [],
         currentMediaList: [],
         mediaTotal: null,
+        offset: null,
         pagesTotal: null,
         params: {
           certification_country: 'US',
@@ -327,7 +328,7 @@
           response.data.results.forEach(movie => {
             this.mediaUndecided.push(movie);
           });
-          
+
           this.currentMediaList = this.mediaUndecided;
         });
       },
@@ -365,7 +366,7 @@
           this.currentMediaList.splice(this.currentIndex, 1);
           this.mediaTotal--;
         }
-        
+
         this.checkCurrentList();
 
         setTimeout(this.showNextPoster, 500);
@@ -381,7 +382,7 @@
           this.currentMediaList.splice(this.currentIndex, 1);
           this.mediaTotal--;
         }
-        
+
         this.checkCurrentList();
 
         setTimeout(this.showNextPoster, 500);
@@ -392,7 +393,7 @@
         this.params.page = 0;
         this.mediaUndecided = [];
         this.mediaTotal = null;
-        
+
         this.getMovies();
       },
       updateStarsExact(event) {
@@ -442,30 +443,41 @@
           }
 
           this.offset = null;
-
         }
       },
       touchStart(event) {
-        this.mouseDown(event.touches[0]);
+        if (event.touches.length > 1) {
+          this.touchCancel();
+        } else {
+          this.mouseDown(event.touches[0]);
+        }
       },
       touchMove(event) {
-        this.mouseMove(event.changedTouches[0]);
+        if (event.touches.length > 1) {
+          this.touchCancel();
+        } else {
+          this.mouseMove(event.changedTouches[0]);
+        }
       },
       touchEnd(event) {
         this.mouseUp(event.changedTouches[0]);
+      },
+      touchCancel() {
+        this.slidesX = 0 - this.slideWidth;
+        this.offset = null;
       },
       showNextPoster() {
         this.slidesX = 0 - this.slideWidth;
       },
       resetAll() {
         let confirmation = confirm('Are you sure you want to permanently clear your selections and filters?');
-        
+
         if (confirmation) {
           this.currentIndex = 0;
           this.mediaUndecided = [];
           this.mediaYes = [];
           this.mediaNo = [];
-          
+
           this.resetParams();
           this.getMovies();
         }
@@ -511,6 +523,7 @@
       document.addEventListener('mouseup', this.mouseUp);
       document.getElementById('swipeContainer').addEventListener('touchmove', this.touchMove);
       document.getElementById('swipeContainer').addEventListener('touchend', this.touchEnd);
+      document.getElementById('swipeContainer').addEventListener('touchcancel', this.touchCancel);
     }
   }
 </script>
